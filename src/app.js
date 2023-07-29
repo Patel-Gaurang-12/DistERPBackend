@@ -19,6 +19,10 @@ app.use("/distributer/api/v1/public/client", clientRouters);
 const companyRouters = require("./routes/comapnyRoutes");
 app.use("/distributer/api/v1/public/company", companyRouters)
 
+//vendor routes
+const vendorRouters = require("./routes/vendorRoutes")  
+app.use("/distributer/api/v1/public/vendor", vendorRouters)
+
 // item routers
 const itemsRouters = require("./routes/companyWiseItemRouters");
 app.use("/distributer/api/v1/public/item", itemsRouters)
