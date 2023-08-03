@@ -12,7 +12,7 @@ module.exports.addItem = (async (request, response) => {
             message: "Error while adding Item.",
             data: err
         })
-    } 
+    }
 })
 
 module.exports.getItems = (async (request, response) => {
@@ -23,7 +23,7 @@ module.exports.getItems = (async (request, response) => {
             data: Items
         })
     } catch (err) {
-        response.status(500).json({
+        response.status(-9).json({
             message: "Error while retriving data",
             data: err
         })
@@ -38,7 +38,7 @@ module.exports.updateItem = (async (request, response) => {
             data: Item
         })
     } catch (err) {
-        response.status(500).json({
+        response.status(-9).json({
             message: "Error while update data",
             data: err
         })
@@ -53,7 +53,7 @@ module.exports.getItemById = (async (request, response) => {
             data: Item
         })
     } catch (err) {
-        response.status(200).json({
+        response.status(-9).json({
             message: "Error while retriving Item.",
             data: err
         })
@@ -68,8 +68,25 @@ module.exports.deleteItem = (async (request, response) => {
             data: Item
         })
     } catch (err) {
-        response.status(200).json({
+        response.status(-9).json({
             message: "Error while deleting Item.",
+            data: err
+        })
+    }
+})
+
+module.exports.getCompanyWiseAllItem = (async (request, response) => {
+    try {
+        const id = request.query.companyId;
+        const items = await itemByCompanySchema.find({ "companyId": id });
+        console.log(items);
+        response.status(200).json({
+            message: "Item retrived successfully",
+            data: items
+        })
+    } catch (err) {
+        response.status(-9).json({
+            message: "Error while retriving Item.",
             data: err
         })
     }
