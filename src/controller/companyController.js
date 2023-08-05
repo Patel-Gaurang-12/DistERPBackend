@@ -8,7 +8,7 @@ module.exports.addcompany = (async (request, response) => {
             data: company
         })
     } catch (err) {
-        response.status(-9).json({
+        response.status().json({
             message: "Error wihie adding company.",
             data: err
         })
@@ -23,7 +23,7 @@ module.exports.getAllcompany = (async (request, response) => {
             data: companys
         })
     } catch (err) {
-        response.status(-9).json({
+        response.status(500).json({
             message: "Error wihie retriving company.",
             data: err
         })
@@ -38,7 +38,7 @@ module.exports.deletecompanyById = (async (request, response) => {
             data: company
         })
     } catch (err) {
-        response.status(-9).json({
+        response.status(500).json({
             message: "Error wihie deleting company.",
             data: err
         })
