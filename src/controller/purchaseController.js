@@ -1,4 +1,5 @@
 const purchaseModel = require("../models/purchaseSchema");
+const stockController = require("./stockController")
 
 module.exports.addPurchase = async (request, response) => {
   try {
@@ -16,6 +17,7 @@ module.exports.addPurchase = async (request, response) => {
 
     console.log(" ---> ", data);
     const res = await purchaseModel.create(data);
+    stockController.addToStock(data.items);
     response.status(200).json({
       message: "purchase added succesfully",
       data: res,

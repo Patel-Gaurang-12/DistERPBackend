@@ -31,6 +31,9 @@ app.use("/distributer/api/v1/public/item", itemsRouters)
 const purchaseRouters = require("./routes/purchaseRoutes");
 app.use("/distributer/api/v1/public/purchase", purchaseRouters)
 
+const stockRouters = require("./routes/stockRoutes");
+app.use("/distributer/api/v1/public/stock", stockRouters)
+
 app.listen(process.env.PORT, () => {
     console.log("server listern on port number : ", process.env.PORT)
 })
