@@ -6,6 +6,16 @@ const sellSchema = new mongoose.Schema({
         require: true,
         message: "date is require"
     },
+    paymentType: {
+        type: Number,
+        require: true,
+        message: "payment is require"
+    },
+    paymentMode: {
+        type: String,
+        require: true,
+        message: "paymentMode is require"
+    },
     sellbillno: {
         type: String,
         require: true,
