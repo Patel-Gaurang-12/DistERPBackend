@@ -4,7 +4,7 @@ const app = express()
 
 // dot env config and database config
 require("dotenv").config()
-require("./config/dbConfig").dbConnect() 
+require("./config/dbConfig").dbConnect()
 
 // enable statements
 app.use(express.urlencoded({ extended: true }))
@@ -24,13 +24,18 @@ const companyRouters = require("./routes/comapnyRoutes");
 app.use("/distributer/api/v1/public/company", companyRouters)
 
 // item routers
-const itemsRouters = require("./routes/companyWiseItemRouters"); 
+const itemsRouters = require("./routes/companyWiseItemRouters");
 app.use("/distributer/api/v1/public/item", itemsRouters)
 
 // Purchase routers
 const purchaseRouters = require("./routes/purchaseRoutes");
 app.use("/distributer/api/v1/public/purchase", purchaseRouters)
 
+// sell Routes
+const sellRouters = require("./routes/sellRoutes");
+app.use("/distributer/api/v1/public/sell", sellRouters)
+
+// Stock Routes
 const stockRouters = require("./routes/stockRoutes");
 app.use("/distributer/api/v1/public/stock", stockRouters)
 
