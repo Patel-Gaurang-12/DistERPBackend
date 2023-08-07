@@ -1,9 +1,9 @@
 const sellModel = require("../models/sellSchema");
+const stockController = require("./stockController")
 
 module.exports.addSell = async (request, response) => {
     try {
         var data = request.body;
-        console.log("data  wit", data);
         data.items = data.items.map((item) => {
             delete item.id;
             return {
@@ -17,6 +17,7 @@ module.exports.addSell = async (request, response) => {
 
         console.log(" ---> ", data);
         const res = await sellModel.create(data);
+        await stockController.removeStocks(data.items)
         response.status(200).json({
             message: "sell added succesfully",
             data: res,
@@ -26,7 +27,7 @@ module.exports.addSell = async (request, response) => {
             message: "Error while adding sell.",
             data: error,
         });
-    }
+    }   
 };
 
 module.exports.getSell = async (request, response) => {
