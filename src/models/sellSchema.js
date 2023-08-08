@@ -1,3 +1,26 @@
+// const mongoose = require("mongoose")
+
+// const sellSchema = new mongoose.Schema({
+//     date: {
+//         type: Date,
+//         require: true,
+//         message: "date is require"
+//     },
+//     sellbillno: {
+//         type: String,
+//         require: true,
+//         unique: true,
+//         message: "invoice is require",
+//         match: /^[a-zA-Z0-9-]+$/
+//     },
+//     clientId: {
+//         type: mongoose.Schema.Types.ObjectId,
+//         ref: "client"
+//     },
+//     remark: {
+//         type: String,
+//         require: true
+//     },
 const mongoose = require("mongoose")
 
 const sellSchema = new mongoose.Schema({
@@ -6,11 +29,21 @@ const sellSchema = new mongoose.Schema({
         require: true,
         message: "date is require"
     },
+    paymentType: {
+        type: Number,
+        require: true,
+        message: "payment is require"
+    },
+    paymentMode: {
+        type: String,
+        require: true,
+        message: "paymentMode is require"
+    },
     sellbillno: {
         type: String,
         require: true,
         unique: true,
-        message: "invoice is require",
+        message: "Sellbillno is require",
         match: /^[a-zA-Z0-9-]+$/
     },
     clientId: {
