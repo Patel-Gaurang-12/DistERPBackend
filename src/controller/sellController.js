@@ -27,7 +27,7 @@ module.exports.addSell = async (request, response) => {
             message: "Error while adding sell.",
             data: error,
         });
-    }   
+    }
 };
 
 module.exports.getSell = async (request, response) => {
@@ -51,14 +51,14 @@ module.exports.getSell = async (request, response) => {
     }
 };
 
-module.exports.deleteSell = async (request, response) =>{
-    try{
-      const sellbill= await sellModel.findByIdAndDelete(request.params.id);
-      response.status(200).json({
-        message: "Sell Bill Deleted successfully",
-        data: sellbill
-    })
-    }catch (error) {
+module.exports.deleteSell = async (request, response) => {
+    try {
+        const sellbill = await sellModel.findByIdAndDelete(request.params.id);
+        response.status(200).json({
+            message: "Sell Bill Deleted successfully",
+            data: sellbill
+        })
+    } catch (error) {
         response.status(500).json({
             message: "Error while deleting sellbill.",
             data: error

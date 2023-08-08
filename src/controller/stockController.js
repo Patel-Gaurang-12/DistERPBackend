@@ -15,7 +15,7 @@ module.exports.addToStock = ((data) => {
                 } else {
                     var price = velidateResp[0].price + parseFloat(data[i].price);
                     var qty = velidateResp[0].qty + parseFloat(data[i].qty);
-                    var updated = await stockModel.findByIdAndUpdate({ _id: velidateResp[0]._id }, { price: price, qty: qty })
+                    var updated = await stockModel.findByIdAndUpdate({ _id: velidateResp[0]._id }, { $set: { price: price, qty: qty } })
                 }
             }
             resolve();
@@ -39,16 +39,11 @@ module.exports.removeStocks = (data) => {
                 })
                 console.log("super : ", velidateResp);
                 if (velidateResp.length !== 0 || velidateResp !== null || velidateResp !== {} || velidateResp !== [] || velidateResp !== undefined) {
-                    var price = velidateResp[0].price - parseFloat(data[i].price);
                     var qty = velidateResp[0].qty - parseFloat(data[i].qty);
+                    var price = velidateResp[0].price - parseFloat(data[i].price);
                     var updated = await stockModel.findByIdAndUpdate({ _id: velidateResp[0]._id }, { price: price, qty: qty })
                     console.log("updated : ", updated);
                 }
-                // } else {
-                //     var price = velidateResp[0].price + parseFloat(data[i].price);
-                //     var qty = velidateResp[0].qty + parseFloat(data[i].qty);
-                //     var updated = await stockModel.findByIdAndUpdate({ _id: velidateResp[0]._id }, { price: price, qty: qty })
-                // }
             }
             resolve();
         } catch (error) {
