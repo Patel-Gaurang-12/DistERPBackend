@@ -20,7 +20,7 @@ const sellSchema = new mongoose.Schema({
         type: String,
         require: true,
         unique: true,
-        message: "invoice is require",
+        message: "Sellbillno is require",
         match: /^[a-zA-Z0-9-]+$/
     },
     clientId: {

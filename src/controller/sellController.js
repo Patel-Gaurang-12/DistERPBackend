@@ -65,3 +65,18 @@ module.exports.deleteSell = async (request, response) =>{
         })
     }
 }
+
+module.exports.updateDebitPrice=async(request, response)=>{
+    try { 
+        const updatedebitprice= await sellModel.findByIdAndUpdate(request.params.id, request.body);
+        response.status(200).json({
+          message: "Debit price updated successfully",
+          data: updatedebitprice
+      }) 
+    } catch (error) {
+        response.status(500).json({
+            message: " Can't change debit price.",
+            data: error
+        })
+    }
+}
