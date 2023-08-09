@@ -73,11 +73,9 @@ module.exports.deleteSell = async (request, response) => {
 module.exports.datewisesellprice = async (request, response) => {
     try {
         var data = request.body;
-        console.log("---> ", data)
         const datewiseprice = await sellModel.find({
             date: { $regex: data.date, $options: 'i' }
         })
-        console.log("eeeee --> ", datewiseprice);
         response.status(200).json({
             message: "sellbill price success",
             data: datewiseprice
@@ -94,7 +92,6 @@ module.exports.updateDebitMony = async (request, response) => {
     try {
         const sells = await sellModel.find({ _id: request.body._Id }, {});
         const datas = sells[0].total - parseFloat(request.body.price);
-        console.log(datas, sells);
         if (sells[0].total >= request.body.price) {
             const resp = await sellModel.findOneAndUpdate({ _id: request.body._Id }, { $set: { total: datas } });
             response.status(200).json({
