@@ -42,7 +42,6 @@ module.exports.removeStocks = (data) => {
                     var qty = velidateResp[0].qty - parseFloat(data[i].qty);
                     var price = velidateResp[0].price - parseFloat(data[i].price);
                     var updated = await stockModel.findByIdAndUpdate({ _id: velidateResp[0]._id }, { price: price, qty: qty })
-                    console.log("updated : ", updated);
                 }
             }
             resolve();
