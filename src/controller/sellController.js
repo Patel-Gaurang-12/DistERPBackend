@@ -15,7 +15,10 @@ module.exports.addSell = async (request, response) => {
             };
         });
 
-        console.log(" ---> ", data);
+        data.total = data.items.reduce((accumulator, currentValue) => {
+            return accumulator + (currentValue.price * currentValue.qty);
+        }, 0)
+
         const res = await sellModel.create(data);
         await stockController.removeStocks(data.items)
         response.status(200).json({
@@ -58,6 +61,30 @@ module.exports.deleteSell = async (request, response) => {
             message: "Sell Bill Deleted successfully",
             data: sellbill
         })
+    } catch (error) {
+        response.status(500).json({
+            message: "Error while deleting sellbill.",
+            data: error
+        })
+    }
+}
+
+module.exports.updateDebitMony = async (request, response) => {
+    console.log(request.body);
+    try {
+        const sells = await sellModel.find({ _id: request.body._Id }, {});
+        const datas = sells[0].total - parseFloat(request.body.price);
+        console.log(datas, sells);
+        if (sells[0].total >= request.body.price) {
+            const resp = await sellModel.findOneAndUpdate({ _id: request.body._Id }, { $set: { total: datas } });
+            response.status(200).json({
+                message: "Sell bill updated successfully.",
+                data: resp
+            })  
+        }
+        else {
+            throw new Error("Invalid price....")
+        }
     } catch (error) {
         response.status(500).json({
             message: "Error while deleting sellbill.",
