@@ -13,9 +13,8 @@ module.exports.addToStock = ((data) => {
                 if (velidateResp.length === 0 || velidateResp === null || velidateResp === {} || velidateResp === [] || velidateResp === undefined) {
                     var inserted = await stockModel.create(data[i])
                 } else {
-                    var price = velidateResp[0].price + parseFloat(data[i].price);
                     var qty = velidateResp[0].qty + parseFloat(data[i].qty);
-                    var updated = await stockModel.findByIdAndUpdate({ _id: velidateResp[0]._id }, { $set: { price: price, qty: qty } })
+                    var updated = await stockModel.findByIdAndUpdate({ _id: velidateResp[0]._id }, { $set: { qty: qty } })
                 }
             }
             resolve();
@@ -27,7 +26,6 @@ module.exports.addToStock = ((data) => {
 })
 
 module.exports.removeStocks = (data) => {
-    console.log("+-+-+->>", data);
     return new Promise(async (resolve, reject) => {
         try {
             for (let i = 0; i < data.length; i++) {

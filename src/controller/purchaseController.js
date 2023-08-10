@@ -14,8 +14,7 @@ module.exports.addPurchase = async (request, response) => {
         uom: item.uom,
       };
     });
-
-    console.log(" ---> ", data);
+    
     const res = await purchaseModel.create(data);
     await stockController.addToStock(data.items);
     response.status(200).json({

@@ -57,10 +57,18 @@ module.exports.getSell = async (request, response) => {
 
 module.exports.deleteSell = async (request, response) => {
     try {
-        const sellbill = await sellModel.findByIdAndDelete(request.params.id);
+        var sellbill;
+        console.log(request.params.id);
+        const res = await sellModel.find({ _id: request.params.id })
+        console.log("Response --> ", res[0].items);
+        const setResponse = await stockController.addToStock(res[0].items);
+        if (setResponse === null || setResponse === {} || setResponse === [] || setResponse === undefined || setResponse.length === 0) {
+            sellbill = await sellModel.findByIdAndDelete(request.params.id);
+            console.log(sellbill);
+        }
         response.status(200).json({
             message: "Sell Bill Deleted successfully",
-            data: sellbill
+            data: setResponse
         })
     } catch (error) {
         response.status(500).json({
@@ -97,7 +105,7 @@ module.exports.updateDebitMony = async (request, response) => {
             response.status(200).json({
                 message: "Sell bill updated successfully.",
                 data: resp
-            })  
+            })
         }
         else {
             throw new Error("Invalid price....")
