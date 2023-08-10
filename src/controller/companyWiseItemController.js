@@ -79,7 +79,6 @@ module.exports.getCompanyWiseAllItem = (async (request, response) => {
     try {
         const id = request.query.companyId;
         const items = await itemByCompanySchema.find({ "companyId": id });
-        console.log(items);
         response.status(200).json({
             message: "Item retrived successfully",
             data: items

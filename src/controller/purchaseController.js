@@ -14,7 +14,7 @@ module.exports.addPurchase = async (request, response) => {
         uom: item.uom,
       };
     });
-    
+
     const res = await purchaseModel.create(data);
     await stockController.addToStock(data.items);
     response.status(200).json({
@@ -42,7 +42,6 @@ module.exports.getPurchases = async (request, response) => {
       data: res,
     });
   } catch (error) {
-    console.log(error);
     response.status(500).json({
       message: "Error while retriving data.",
       data: error,

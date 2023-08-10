@@ -35,7 +35,6 @@ module.exports.removeStocks = (data) => {
                         { "itemId": data[i].itemId }
                     ]
                 })
-                console.log("super : ", velidateResp);
                 if (velidateResp.length !== 0 || velidateResp !== null || velidateResp !== {} || velidateResp !== [] || velidateResp !== undefined) {
                     var qty = velidateResp[0].qty - parseFloat(data[i].qty);
                     var price = velidateResp[0].price - parseFloat(data[i].price);

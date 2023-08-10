@@ -47,7 +47,6 @@ module.exports.getSell = async (request, response) => {
             data: res,
         });
     } catch (error) {
-        console.log(error);
         response.status(500).json({
             message: "Error while retriving data.",
             data: error,
@@ -58,13 +57,10 @@ module.exports.getSell = async (request, response) => {
 module.exports.deleteSell = async (request, response) => {
     try {
         var sellbill;
-        console.log(request.params.id);
         const res = await sellModel.find({ _id: request.params.id })
-        console.log("Response --> ", res[0].items);
         const setResponse = await stockController.addToStock(res[0].items);
         if (setResponse === null || setResponse === {} || setResponse === [] || setResponse === undefined || setResponse.length === 0) {
             sellbill = await sellModel.findByIdAndDelete(request.params.id);
-            console.log(sellbill);
         }
         response.status(200).json({
             message: "Sell Bill Deleted successfully",
@@ -89,14 +85,12 @@ module.exports.datewisesellprice = async (request, response) => {
             data: datewiseprice
         })
     } catch (error) {
-        console.log(error);
         response.status(500).json({
             message: "can't retrive sellbill price",
         })
     }
 }
 module.exports.updateDebitMony = async (request, response) => {
-    console.log(request.body);
     try {
         const sells = await sellModel.find({ _id: request.body._Id }, {});
         const datas = sells[0].total - parseFloat(request.body.price);
