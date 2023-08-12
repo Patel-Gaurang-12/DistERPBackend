@@ -58,6 +58,19 @@ const sellSchema = new mongoose.Schema({
         type: Number,
         require: true
     },
+    recevedAmount: [
+        {
+            Price: {
+                type: Number,
+            },
+            paymentMode: {
+                type: String,
+            },
+            date: {
+                type: String,
+            }
+        }
+    ],
     items: [
         {
             companyId: {

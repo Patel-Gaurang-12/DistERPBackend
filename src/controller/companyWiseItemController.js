@@ -62,7 +62,7 @@ module.exports.getItemById = (async (request, response) => {
 
 module.exports.deleteItem = (async (request, response) => {
     try {
-        const Item = await itemByCompanySchema.findByIdAndDelete(request.params.id);
+        const Item = await itemByCompanySchema.findByIdAndDelete({ "_id": request.params.id });
         response.status(200).json({
             message: "Item deleted successfully",
             data: Item

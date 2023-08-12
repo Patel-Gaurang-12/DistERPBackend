@@ -48,3 +48,27 @@ module.exports.getPurchases = async (request, response) => {
     });
   }
 };
+
+module.exports.getBillNumber = (async (request, response) => {
+  try {
+    const res = await purchaseModel
+      .find({ invoice: request.body.data });
+    console.log(res);
+    if (res.length === 0) {
+      response.status(200).json({
+        message: "Data retrived succesfully.",
+        data: true,
+      });
+    } else {
+      response.status(200).json({
+        message: "Data retrived succesfully.",
+        data: false,
+      });
+    }
+  } catch (error) {
+    response.status(500).json({
+      message: "Error while retriving data.",
+      data: error,
+    });
+  }
+})
