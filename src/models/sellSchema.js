@@ -25,7 +25,7 @@ const mongoose = require("mongoose")
 
 const sellSchema = new mongoose.Schema({
     date: {
-        type: Date,
+        type: String,
         require: true,
         message: "date is require"
     },

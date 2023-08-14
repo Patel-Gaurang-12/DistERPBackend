@@ -1,3 +1,4 @@
+const { request } = require("express");
 const sellModel = require("../models/sellSchema");
 const stockController = require("./stockController")
 
@@ -66,16 +67,22 @@ module.exports.deleteSell = async (request, response) => {
     }
 }
 
-module.exports.updateDebitPrice=async(request, response)=>{
-    try { 
-        const updatedebitprice= await sellModel.findByIdAndUpdate(request.params.id, request.body);
+module.exports.datewisesellprice = async (request, response) => {
+    try {
+        var data = request.body;
+        console.log("---> ", data)
+        const datewiseprice = await sellModel.find({
+            date: { $regex: data.date, $options: 'i' }
+        })
+        console.log("eeeee --> ", datewiseprice);
         response.status(200).json({
-          message: "Debit price updated successfully",
-          data: updatedebitprice
-      }) 
+            message: "sellbill price success",
+            data: datewiseprice
+        })
     } catch (error) {
+        console.log(error);
         response.status(500).json({
-            message: " Can't change debit price.",
+            message: "can't retrive sellbill price",
             data: error
         })
     }
