@@ -10,11 +10,6 @@ const stockSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "companyWiseItem"
     },
-    price: {
-        type: Number,
-        require: true,
-        message: "price is require"
-    },
     qty: {
         type: Number,
         require: true,

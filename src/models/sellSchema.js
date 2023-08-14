@@ -54,6 +54,23 @@ const sellSchema = new mongoose.Schema({
         type: String,
         require: true
     },
+    total: {
+        type: Number,
+        require: true
+    },
+    recevedAmount: [
+        {
+            Price: {
+                type: Number,
+            },
+            paymentMode: {
+                type: String,
+            },
+            date: {
+                type: String,
+            }
+        }
+    ],
     items: [
         {
             companyId: {

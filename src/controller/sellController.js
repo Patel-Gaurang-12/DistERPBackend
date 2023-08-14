@@ -16,7 +16,10 @@ module.exports.addSell = async (request, response) => {
             };
         });
 
-        console.log(" ---> ", data);
+        data.total = data.items.reduce((accumulator, currentValue) => {
+            return accumulator + (currentValue.price * currentValue.qty);
+        }, 0)
+
         const res = await sellModel.create(data);
         await stockController.removeStocks(data.items)
         response.status(200).json({
@@ -44,7 +47,6 @@ module.exports.getSell = async (request, response) => {
             data: res,
         });
     } catch (error) {
-        console.log(error);
         response.status(500).json({
             message: "Error while retriving data.",
             data: error,
@@ -54,10 +56,15 @@ module.exports.getSell = async (request, response) => {
 
 module.exports.deleteSell = async (request, response) => {
     try {
-        const sellbill = await sellModel.findByIdAndDelete(request.params.id);
+        var sellbill;
+        const res = await sellModel.find({ _id: request.params.id })
+        const setResponse = await stockController.addToStock(res[0].items);
+        if (setResponse === null || setResponse === {} || setResponse === [] || setResponse === undefined || setResponse.length === 0) {
+            sellbill = await sellModel.findByIdAndDelete(request.params.id);
+        }
         response.status(200).json({
             message: "Sell Bill Deleted successfully",
-            data: sellbill
+            data: setResponse
         })
     } catch (error) {
         response.status(500).json({
@@ -70,11 +77,9 @@ module.exports.deleteSell = async (request, response) => {
 module.exports.datewisesellprice = async (request, response) => {
     try {
         var data = request.body;
-        console.log("---> ", data)
         const datewiseprice = await sellModel.find({
             date: { $regex: data.date, $options: 'i' }
         })
-        console.log("eeeee --> ", datewiseprice);
         response.status(200).json({
             message: "sellbill price success",
             data: datewiseprice
@@ -83,6 +88,26 @@ module.exports.datewisesellprice = async (request, response) => {
         console.log(error);
         response.status(500).json({
             message: "can't retrive sellbill price",
+        })
+    }
+}
+module.exports.updateDebitMony = async (request, response) => {
+    try {
+        const sells = await sellModel.find({ _id: request.body._Id }, {});
+        const datas = sells[0].total - parseFloat(request.body.price);
+        if (sells[0].total >= request.body.price) {
+            const resp = await sellModel.findOneAndUpdate({ _id: request.body._Id }, { $set: { total: datas } });
+            response.status(200).json({
+                message: "Sell bill updated successfully.",
+                data: resp
+            })
+        }
+        else {
+            throw new Error("Invalid price....")
+        }
+    } catch (error) {
+        response.status(500).json({
+            message: "Error while deleting sellbill.",
             data: error
         })
     }
