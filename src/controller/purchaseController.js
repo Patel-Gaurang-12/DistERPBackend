@@ -1,35 +1,57 @@
 const purchaseModel = require("../models/purchaseSchema");
 const stockController = require("./stockController")
 const stockSchema = require("../models/stockSchema");
+const stockHistory = require("../models/histroySchema")
+
 module.exports.addPurchase = async (request, response) => {
   try {
     var data = request.body;
-    data.items = data.items.map((item) => {
+    const history = []
+    const stockData = await stockSchema.find();
+    data.items = data.items.map(async (item) => {
+      const stock = stockData.filter(stock => stock.itemId === item.itemId)
+      console.log(" stock --> ", stock);
+      if (stock.length !== 0) {
+        const data = {
+          companyId: item.companyId,
+          itemId: item.itemId,
+          type: "purchase",
+          inQty: parseFloat(item.qty),
+          currentQty: stock.qty
+        }
+        history.push(data)
+      } else {
+        const data = {
+          companyId: item.companyId,
+          itemId: item.itemId,
+          type: "purchase",
+          inQty: parseFloat(item.qty),
+          currentQty: 0
+        }
+        history.push(data)
+      }
       delete item.id;
       return {
         companyId: item.companyId,
         qty: parseFloat(item.qty),
         price: parseFloat(item.price),
-        gstper: parseFloat(item.gstper), 
+        gstper: parseFloat(item.gstper),
         itemId: item.itemId,
         uom: item.uom,
       };
     });
-    
-    var purchaseData=[];
-    purchaseData=data;
-    console.log("purchaseData",purchaseData);
+
+    console.log("history : ", history);
 
     const res = await purchaseModel.create(data);
     await stockController.addToStock(data.items);
-    var id = request.params.id;
-     const stockQty=stockSchema.find({"_id":id})
-     console.log("stockqty",stockQty)
+
     response.status(200).json({
       message: "purchase added succesfully",
       data: res,
     });
   } catch (error) {
+    console.log(error);
     response.status(500).json({
       message: "Error while adding purchase.",
       data: error,
@@ -37,11 +59,6 @@ module.exports.addPurchase = async (request, response) => {
   }
 };
 
-// data.items.map((e)=>{
-  // fetch quantity of that item in stock and get the quantity
-  // schemaName.find({"itemId":e.itemId},qty).exec()
-  // add all the dta that you recieve in the history table with this quantity
-// })
 module.exports.getPurchases = async (request, response) => {
   try {
     const res = await purchaseModel
