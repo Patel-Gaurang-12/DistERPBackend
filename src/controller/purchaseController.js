@@ -1,6 +1,6 @@
 const purchaseModel = require("../models/purchaseSchema");
 const stockController = require("./stockController")
-
+const stockSchema = require("../models/stockSchema");
 module.exports.addPurchase = async (request, response) => {
   try {
     var data = request.body;
@@ -10,13 +10,21 @@ module.exports.addPurchase = async (request, response) => {
         companyId: item.companyId,
         qty: parseFloat(item.qty),
         price: parseFloat(item.price),
+        gstper: parseFloat(item.gstper), 
         itemId: item.itemId,
         uom: item.uom,
       };
     });
+    
+    var purchaseData=[];
+    purchaseData=data;
+    console.log("purchaseData",purchaseData);
 
     const res = await purchaseModel.create(data);
     await stockController.addToStock(data.items);
+    var id = request.params.id;
+     const stockQty=stockSchema.find({"_id":id})
+     console.log("stockqty",stockQty)
     response.status(200).json({
       message: "purchase added succesfully",
       data: res,
@@ -29,6 +37,11 @@ module.exports.addPurchase = async (request, response) => {
   }
 };
 
+// data.items.map((e)=>{
+  // fetch quantity of that item in stock and get the quantity
+  // schemaName.find({"itemId":e.itemId},qty).exec()
+  // add all the dta that you recieve in the history table with this quantity
+// })
 module.exports.getPurchases = async (request, response) => {
   try {
     const res = await purchaseModel

@@ -42,6 +42,7 @@ module.exports.getSell = async (request, response) => {
             .populate("items.itemId")
             .populate("items.companyId")
             .exec();
+            console.log("res for client",res);
         response.status(200).json({
             message: "Data retrived succesfully.",
             data: res,
@@ -79,7 +80,10 @@ module.exports.datewisesellprice = async (request, response) => {
         var data = request.body;
         const datewiseprice = await sellModel.find({
             date: { $regex: data.date, $options: 'i' }
-        })
+        }).populate("items.itemId")
+        .populate("items.companyId")
+        .exec();
+        console.log("data....",datewiseprice);
         response.status(200).json({
             message: "sellbill price success",
             data: datewiseprice
