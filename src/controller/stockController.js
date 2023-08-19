@@ -1,6 +1,9 @@
 const stockModel = require("../models/stockSchema")
 const purchaseSchema = require("../models/purchaseSchema");
 const sellSchema = require("../models/sellSchema");
+const histroySchema = require("../models/histroySchema");
+
+
 module.exports.addToStock = ((data) => {
     return new Promise(async (resolve, reject) => {
         try {
@@ -108,23 +111,25 @@ module.exports.addItemWiseSellStock = (async (request, response) => {
     }
 })
 
-module.exports.getStockHistory = (async (req, res) => {
+module.exports.getStockHistory = (async (request, response) => {
     try {
         var id = request.params.id;
-        // const 
-    } catch (error) {
-        response.status(500).json({
-            message: "Error while retriving stock history.",
-            data: error,
+        const stock = await stockModel.findById(id);
+        const stockHistory = await histroySchema.find({
+            $and: [
+                { companyId: stock.companyId },
+                { itemId: stock.itemId }
+            ]
+        })
+            .populate("companyId")
+            .populate("itemId").exec();
+
+        response.status(200).json({
+            message: "Data retriving successfully.",
+            data: stockHistory,
         });
-    }
-})
-
-module.exports.getStockCompanyItemWise = (async (request, response) => {
-    try {
-        const stockId = await stockModel.findById(request.params.id);
-
     } catch (error) {
+        console.log(error);
         response.status(500).json({
             message: "Error while retriving stock history.",
             data: error,

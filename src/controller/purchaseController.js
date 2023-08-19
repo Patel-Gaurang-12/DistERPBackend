@@ -6,6 +6,7 @@ const stockHistory = require("../models/histroySchema")
 module.exports.addPurchase = async (request, response) => {
   try {
     var data = request.body;
+    console.log(data);
     const history = [];
     const stockData = await stockSchema.find({});
     data.items = data.items.map((item) => {
@@ -17,7 +18,7 @@ module.exports.addPurchase = async (request, response) => {
         type: "purchase",
         inQty: parseFloat(item.qty),
         currentQty: stock?.qty ? stock?.qty : 0,
-        date : `${new Date().getDate()}-${new Date().getMonth()}-${new Date().getFullYear()}`
+        date: request.body.date
       }
       history.push(data)
       return {
