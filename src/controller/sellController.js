@@ -89,6 +89,7 @@ module.exports.datewisesellprice = async (request, response) => {
             data: datewiseprice
         })
     } catch (error) {
+        console.log(error);
         response.status(500).json({
             message: "can't retrive sellbill price",
         })
