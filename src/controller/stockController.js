@@ -2,7 +2,6 @@ const stockModel = require("../models/stockSchema")
 const purchaseSchema = require("../models/purchaseSchema");
 const sellSchema = require("../models/sellSchema");
 module.exports.addToStock = ((data) => {
-    console.log(":::", data);
     return new Promise(async (resolve, reject) => {
         try {
             for (let i = 0; i < data.length; i++) {
@@ -12,11 +11,11 @@ module.exports.addToStock = ((data) => {
                         { "itemId": data[i].itemId }
                     ]
                 })
+                console.log(velidateResp);
                 if (velidateResp.length === 0 || velidateResp === null || velidateResp === {} || velidateResp === [] || velidateResp === undefined) {
                     var inserted = await stockModel.create(data[i])
                 } else {
                     var qty = velidateResp[0].qty + parseFloat(data[i].qty);
-                    console.log(" ====> ", qty);
                     var updated = await stockModel.findByIdAndUpdate({ _id: velidateResp[0]._id }, { $set: { qty: qty } })
                 }
             }
@@ -113,6 +112,18 @@ module.exports.getStockHistory = (async (req, res) => {
     try {
         var id = request.params.id;
         // const 
+    } catch (error) {
+        response.status(500).json({
+            message: "Error while retriving stock history.",
+            data: error,
+        });
+    }
+})
+
+module.exports.getStockCompanyItemWise = (async (request, response) => {
+    try {
+        const stockId = await stockModel.findById(request.params.id);
+
     } catch (error) {
         response.status(500).json({
             message: "Error while retriving stock history.",

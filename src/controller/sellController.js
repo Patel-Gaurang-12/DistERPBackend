@@ -1,12 +1,26 @@
 const { request } = require("express");
 const sellModel = require("../models/sellSchema");
-const stockController = require("./stockController")
+const stockController = require("./stockController");
+const stockSchema = require("../models/stockSchema");
+const histroySchema = require("../models/histroySchema");
 
 module.exports.addSell = async (request, response) => {
     try {
         var data = request.body;
+        const history = [];
+        const stockData = await stockSchema.find({});
         data.items = data.items.map((item) => {
             delete item.id;
+            const stock = stockData.find(stock => stock.companyId.toString() === item.companyId && stock.itemId.toString() === item.itemId)
+            const data = {
+                companyId: item.companyId,
+                itemId: item.itemId,
+                type: "sell",
+                inQty: parseFloat(item.qty),
+                currentQty: stock?.qty ? stock?.qty : 0,
+                date: `${new Date().getDate()}-${new Date().getMonth()}-${new Date().getFullYear()}`
+            }
+            history.push(data)
             return {
                 companyId: item.companyId,
                 qty: parseFloat(item.qty),
@@ -15,18 +29,20 @@ module.exports.addSell = async (request, response) => {
                 uom: item.uom,
             };
         });
-
+        console.log("history ", history);
         data.total = data.items.reduce((accumulator, currentValue) => {
             return accumulator + (currentValue.price * currentValue.qty);
         }, 0)
 
         const res = await sellModel.create(data);
         await stockController.removeStocks(data.items)
+        await histroySchema.insertMany(history)
         response.status(200).json({
             message: "sell added succesfully",
             data: res,
         });
     } catch (error) {
+        console.log("error : ", error);
         response.status(500).json({
             message: "Error while adding sell.",
             data: error,
@@ -42,7 +58,7 @@ module.exports.getSell = async (request, response) => {
             .populate("items.itemId")
             .populate("items.companyId")
             .exec();
-            console.log("res for client",res);
+        console.log("res for client", res);
         response.status(200).json({
             message: "Data retrived succesfully.",
             data: res,
@@ -81,9 +97,9 @@ module.exports.datewisesellprice = async (request, response) => {
         const datewiseprice = await sellModel.find({
             date: { $regex: data.date, $options: 'i' }
         }).populate("items.itemId")
-        .populate("items.companyId")
-        .exec();
-        console.log("data....",datewiseprice);
+            .populate("items.companyId")
+            .exec();
+        console.log("data....", datewiseprice);
         response.status(200).json({
             message: "sellbill price success",
             data: datewiseprice

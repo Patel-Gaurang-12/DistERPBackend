@@ -6,31 +6,20 @@ const stockHistory = require("../models/histroySchema")
 module.exports.addPurchase = async (request, response) => {
   try {
     var data = request.body;
-    const history = []
-    const stockData = await stockSchema.find();
-    data.items = data.items.map(async (item) => {
-      const stock = stockData.filter(stock => stock.itemId === item.itemId)
-      console.log(" stock --> ", stock);
-      if (stock.length !== 0) {
-        const data = {
-          companyId: item.companyId,
-          itemId: item.itemId,
-          type: "purchase",
-          inQty: parseFloat(item.qty),
-          currentQty: stock.qty
-        }
-        history.push(data)
-      } else {
-        const data = {
-          companyId: item.companyId,
-          itemId: item.itemId,
-          type: "purchase",
-          inQty: parseFloat(item.qty),
-          currentQty: 0
-        }
-        history.push(data)
-      }
+    const history = [];
+    const stockData = await stockSchema.find({});
+    data.items = data.items.map((item) => {
       delete item.id;
+      const stock = stockData.find(stock => stock.companyId.toString() === item.companyId && stock.itemId.toString() === item.itemId)
+      const data = {
+        companyId: item.companyId,
+        itemId: item.itemId,
+        type: "purchase",
+        inQty: parseFloat(item.qty),
+        currentQty: stock?.qty ? stock?.qty : 0,
+        date : `${new Date().getDate()}-${new Date().getMonth()}-${new Date().getFullYear()}`
+      }
+      history.push(data)
       return {
         companyId: item.companyId,
         qty: parseFloat(item.qty),
@@ -41,11 +30,11 @@ module.exports.addPurchase = async (request, response) => {
       };
     });
 
-    console.log("history : ", history);
+    console.log("Histry : ", history);
 
     const res = await purchaseModel.create(data);
     await stockController.addToStock(data.items);
-
+    await stockHistory.insertMany(history);
     response.status(200).json({
       message: "purchase added succesfully",
       data: res,
@@ -58,6 +47,7 @@ module.exports.addPurchase = async (request, response) => {
     });
   }
 };
+
 
 module.exports.getPurchases = async (request, response) => {
   try {
