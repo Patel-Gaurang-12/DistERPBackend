@@ -18,7 +18,7 @@ module.exports.addSell = async (request, response) => {
                 type: "sell",
                 inQty: parseFloat(item.qty),
                 currentQty: stock?.qty ? stock?.qty : 0,
-                date: `${new Date().getDate()}-${new Date().getMonth()}-${new Date().getFullYear()}`
+                date: request.body?.date
             }
             history.push(data)
             return {
