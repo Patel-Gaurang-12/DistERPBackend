@@ -1,15 +1,19 @@
 const mongoose = require("mongoose");
 
-const historySchema=new mongoose.Schema({
+const historySchema = new mongoose.Schema({
     date: {
         type: String,
-        require: true,
-        message : "date is require"
+        required: true,
+        message: "date is required"
     },
-    Type:{
-       type: String,
-       require: true,
-       message: "type is require"
+    type: {
+        type: String,
+        enum: [
+            "sell",
+            "purchase"
+        ],
+        required: true,
+        message: "type is required"
     },
     companyId: {
         type: mongoose.Schema.Types.ObjectId,
@@ -19,16 +23,16 @@ const historySchema=new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "companyWiseItem"
     },
-    qty: {
+    inQty: {
         type: Number,
-        require: true,
-        message : "qty is require"
+        required: true,
+        message: "qty is required"
 
     },
-    remainingStock: {
+    currentQty: {
         type: Number,
-        require: true,
-        message : "remaining stock is required"
+        required: true,
+        message: "remaining stock is requiredd"
     }
 })
 

@@ -1,35 +1,46 @@
 const purchaseModel = require("../models/purchaseSchema");
 const stockController = require("./stockController")
 const stockSchema = require("../models/stockSchema");
+const stockHistory = require("../models/histroySchema")
+
 module.exports.addPurchase = async (request, response) => {
   try {
     var data = request.body;
+    const history = [];
+    const stockData = await stockSchema.find({});
     data.items = data.items.map((item) => {
       delete item.id;
+      const stock = stockData.find(stock => stock.companyId.toString() === item.companyId && stock.itemId.toString() === item.itemId)
+      const data = {
+        companyId: item.companyId,
+        itemId: item.itemId,
+        type: "purchase",
+        inQty: parseFloat(item.qty),
+        currentQty: stock?.qty ? stock?.qty : 0,
+        date : `${new Date().getDate()}-${new Date().getMonth()}-${new Date().getFullYear()}`
+      }
+      history.push(data)
       return {
         companyId: item.companyId,
         qty: parseFloat(item.qty),
         price: parseFloat(item.price),
-        gstper: parseFloat(item.gstper), 
+        gstper: parseFloat(item.gstper),
         itemId: item.itemId,
         uom: item.uom,
       };
     });
-    
-    var purchaseData=[];
-    purchaseData=data;
-    console.log("purchaseData",purchaseData);
+
+    console.log("Histry : ", history);
 
     const res = await purchaseModel.create(data);
     await stockController.addToStock(data.items);
-    var id = request.params.id;
-     const stockQty=stockSchema.find({"_id":id})
-     console.log("stockqty",stockQty)
+    await stockHistory.insertMany(history);
     response.status(200).json({
       message: "purchase added succesfully",
       data: res,
     });
   } catch (error) {
+    console.log(error);
     response.status(500).json({
       message: "Error while adding purchase.",
       data: error,
@@ -37,11 +48,7 @@ module.exports.addPurchase = async (request, response) => {
   }
 };
 
-// data.items.map((e)=>{
-  // fetch quantity of that item in stock and get the quantity
-  // schemaName.find({"itemId":e.itemId},qty).exec()
-  // add all the dta that you recieve in the history table with this quantity
-// })
+
 module.exports.getPurchases = async (request, response) => {
   try {
     const res = await purchaseModel
