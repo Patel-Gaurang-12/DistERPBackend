@@ -40,7 +40,13 @@ const purchaseSchema = new mongoose.Schema({
                 type: Number,
                 require: true,
                 message : "qty is require"
+      
             },
+            gstper:{
+                type: Number,
+                require: true,
+                message : "GST is require"
+               },
             uom: {
                 type: String,
                 require: true,

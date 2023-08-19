@@ -91,6 +91,11 @@ const sellSchema = new mongoose.Schema({
                 require: true,
                 message: "qty is require"
             },
+            uom: {
+                type: String,
+                require: true,
+                message : "Unit of mesurment is require"
+            },
         }
     ]
 })

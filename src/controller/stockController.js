@@ -1,5 +1,6 @@
 const stockModel = require("../models/stockSchema")
-
+const purchaseSchema=require("../models/purchaseSchema");
+const sellSchema = require("../models/sellSchema");
 module.exports.addToStock = ((data) => {
     return new Promise(async (resolve, reject) => {
         try {
@@ -64,3 +65,48 @@ module.exports.getStockData = (async (request, response) => {
         })
     }
 })
+
+module.exports.addItemWisePurchaseStock=(async (request,response)=>{
+     try{
+        var id= request.params.id;
+        const res = await purchaseSchema
+        .find({"_id":id})
+        .populate("items.itemId")
+        .populate("items.companyId")
+        .exec();
+      response.status(200).json({
+        message: "Purchase Data retrived succesfully.",
+        data: res,
+      });
+
+     }catch(error){
+        response.status(500).json({
+            message: "Error while retriving purchase data.",
+            data: error,
+          });
+     }
+})
+
+module.exports.addItemWiseSellStock=(async (request,response)=>{
+    try {
+        var id= request.params.id;
+        const res = await sellSchema
+            .find({"_id":id})
+            .populate("items.itemId")
+            .populate("items.companyId")
+            .exec();
+         response.status(200).json({
+            message: " Sell Data retrived succesfully.",
+            data: res,
+        });
+    } catch (error) {
+        response.status(500).json({
+            message: "Error while retriving Sell data.",
+            data: error,
+        });
+    }
+})
+
+// module.exports.getHistroyWithItemName=((req,res)=>{
+//     name=req.params.itemName
+// })
