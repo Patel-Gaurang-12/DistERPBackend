@@ -1,6 +1,6 @@
 const stockModel = require("../models/stockSchema")
-const purchaseSchema = require("../models/purchaseSchema");
-const sellSchema = require("../models/sellSchema");
+// const purchaseSchema = require("../models/purchaseSchema");
+// const sellSchema = require("../models/sellSchema");
 const histroySchema = require("../models/histroySchema");
 
 

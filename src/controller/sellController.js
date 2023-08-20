@@ -1,8 +1,8 @@
-const { request } = require("express");
 const sellModel = require("../models/sellSchema");
 const stockController = require("./stockController");
 const stockSchema = require("../models/stockSchema");
 const histroySchema = require("../models/histroySchema");
+const sellAmountHistorySchma = require("../models/sellHistorySchema")
 
 module.exports.addSell = async (request, response) => {
     try {
@@ -114,21 +114,58 @@ module.exports.datewisesellprice = async (request, response) => {
 module.exports.updateDebitMony = async (request, response) => {
     try {
         const sells = await sellModel.find({ _id: request.body._Id }, {});
-        const datas = sells[0].total - parseFloat(request.body.price);
-        if (sells[0].total >= request.body.price) {
+        const datas = sells[0].total - parseFloat(request.body.debitMoney);
+        if (sells[0].total >= parseFloat(request.body.debitMoney)) {
             const resp = await sellModel.findOneAndUpdate({ _id: request.body._Id }, { $set: { total: datas } });
+
+            const history = {
+                type: request.body.type,
+                amount: request.body.debitMoney,
+                date: request.body.date,
+                sellId: request.body._Id,
+            }
+            await sellAmountHistorySchma.create(history);
             response.status(200).json({
                 message: "Sell bill updated successfully.",
                 data: resp
             })
         }
         else {
-            throw new Error("Invalid price....")
+            response.status(500).json({
+                message: "Invalid debit amount.",
+                data: "Invalid debit amount."
+            })
         }
     } catch (error) {
+        console.log(error);
         response.status(500).json({
-            message: "Error while deleting sellbill.",
+            message: "Error while editing sellbill.",
             data: error
         })
     }
 }
+
+module.exports.getSellWisePriceHistory = (async (request, response) => {
+    try {
+        const res = await sellAmountHistorySchma
+            .find()
+            // .populate("sellId")
+            // .exec();
+        if (res.length !== 0) {
+            response.status(200).json({
+                message: "Data retrived succesfully.",
+                data: res,
+            });
+        } else {
+            response.status(500).json({
+                message: "Error while retriving data.",
+                data: "No empty data",
+            });
+        }
+    } catch (error) {
+        response.status(500).json({
+            message: "Error while retriving data.",
+            data: error,
+        });
+    }
+})
