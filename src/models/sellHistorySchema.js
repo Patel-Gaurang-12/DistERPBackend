@@ -17,6 +17,9 @@ const sellAmountHistorySchema = new mongoose.Schema({
     amount: {
         type: Number,
         required: [true, "Amount is required."]
+    },
+    receiptno:{
+        type: String,
     }
 })
 

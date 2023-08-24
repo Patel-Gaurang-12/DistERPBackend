@@ -10,8 +10,7 @@ const purchaseSchema = new mongoose.Schema({
         type: String,
         require: true,
         unique: true,
-        message : "invoice is require",
-        match: /^[a-zA-Z0-9-]+$/
+        message : "invoice is require"
     },
     vendorId: {
         type: mongoose.Schema.Types.ObjectId,
