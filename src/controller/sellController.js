@@ -5,6 +5,7 @@ const histroySchema = require("../models/histroySchema");
 const sellAmountHistorySchma = require("../models/sellHistorySchema");
 const sellHistorySchema = require("../models/sellHistorySchema");
 const sellSchema = require("../models/sellSchema");
+const purchaseModel = require("../models/purchaseSchema")
 
 module.exports.addSell = async (request, response) => {
     try {
@@ -31,7 +32,6 @@ module.exports.addSell = async (request, response) => {
                 uom: item.uom,
             };
         });
-        console.log("history ", history);
         data.total = data.items.reduce((accumulator, currentValue) => {
             return accumulator + (currentValue.price * currentValue.qty);
         }, 0)
@@ -44,7 +44,6 @@ module.exports.addSell = async (request, response) => {
             data: res,
         });
     } catch (error) {
-        console.log("error : ", error);
         response.status(500).json({
             message: "Error while adding sell.",
             data: error,
@@ -60,7 +59,6 @@ module.exports.getSell = async (request, response) => {
             .populate("items.itemId")
             .populate("items.companyId")
             .exec();
-        console.log("res for client", res);
         response.status(200).json({
             message: "Data retrived succesfully.",
             data: res,
@@ -78,7 +76,7 @@ module.exports.deleteSell = async (request, response) => {
         var sellbill;
         const res = await sellModel.find({ _id: request.params.id })
         const setResponse = await stockController.addToStock(res[0].items);
-        if (setResponse === null || setResponse === {} || setResponse === [] || setResponse === undefined || setResponse.length === 0) {
+        if (setResponse === null || setResponse === undefined || setResponse.length === 0) {
             sellbill = await sellModel.findByIdAndDelete(request.params.id);
         }
         response.status(200).json({
@@ -101,7 +99,6 @@ module.exports.datewisesellprice = async (request, response) => {
         }).populate("items.itemId")
             .populate("items.companyId")
             .exec();
-        console.log("data....", datewiseprice);
         response.status(200).json({
             message: "sellbill price success",
             data: datewiseprice
@@ -152,8 +149,6 @@ module.exports.getSellWisePriceHistory = (async (request, response) => {
     try {
         const res = await sellAmountHistorySchma
             .find()
-        // .populate("sellId")
-        // .exec();
         if (res.length !== 0) {
             response.status(200).json({
                 message: "Data retrived succesfully.",
@@ -178,7 +173,6 @@ module.exports.getsellBillNumber = (async (request, response) => {
     try {
         const res = await sellModel
             .find({ sellbillno: request.body.data });
-        console.log(res);
         if (res.length === 0) {
             response.status(200).json({
                 message: "Data retrived succesfully.",
@@ -201,18 +195,14 @@ module.exports.getsellBillNumber = (async (request, response) => {
 module.exports.datewiseAddMoneyList = async (request, response) => {
     try {
         var data = request.body;
-        console.log("data-----", data);
         const datewiseprice = await sellHistorySchema.find({
             date: { $eq: data.date },
         }).populate({
             path: "sellId",
             populate: {
                 path: "clientId",
-                // model:"client"
             }
         }).exec()
-
-        // console.log("data....132324134243", dataForSomething);
         response.status(200).json({
             message: "sellbill price success",
             data: datewiseprice
@@ -242,29 +232,91 @@ module.exports.getRecordBetweenDate = (async (request, response) => {
         const query = {
             paymentType: 0,
             date: {
-                $gte : date1.toISOString(),
-                $lte : date2.toISOString()
+                $gte: date1.toISOString(),
+                $lte: date2.toISOString()
             }
         };
-        
+
         const projection = {
-            date:1,
+            date: 1,
             items: {
                 qty: 1,
                 price: 1
             }
         };
         const sells = await sellModel.find(query, projection);
-        // console.log("sellHistorySchemaData", data);
-        // console.log("sellHistorySchemaData",sells);
         response.status(200).json({
             message: "data retrived success",
-            data: {sells,data}
+            data: { sells, data }
         })
     } catch (err) {
         response.status(500).json({
             message: "error retriving data",
             data: err
+        })
+    }
+})
+
+module.exports.getClientWiseSellbills = (async (request, response) => {
+    try {
+        var finalData;
+        console.log(request.query);
+        const { type, person, sdate, edate } = request.query;
+
+        var dateQuery = {};
+
+        if (sdate && edate) {
+            dateQuery = {
+                date: {
+                    $gte: new Date(sdate).toISOString(), // Start date
+                    $lte: new Date(edate).toISOString(),   // End date
+                },
+            };
+        }
+        // console.log("-------------------> ", dateQuery);
+        switch (type) {
+            case "sell":
+                if (person) {
+                    finalData = await sellModel.find({
+                        $and: [
+                            { clientId: person },
+                            dateQuery
+                        ]
+                    }).populate("clientId")
+                        .populate("items.itemId")
+                        .populate("items.companyId")
+                        .exec();
+                } else {
+                    finalData = await sellModel.find(dateQuery)
+                        .populate("clientId")
+                        .populate("items.itemId")
+                        .populate("items.companyId")
+                        .exec();
+                }
+                break;
+            case "purchase":
+                if (person) {
+                    finalData = await purchaseModel.find({
+                        $and: [
+                            { vendorId: person },
+                            dateQuery
+                        ]
+                    }).populate("vendorId")
+                } else {
+                    finalData = await purchaseModel.find(dateQuery).populate("vendorId")
+                }
+                break;
+        }
+        // console.log("===> ", finalData);
+        response.status(200).json({
+            message: "data retrived success",
+            data: finalData
+        })
+    } catch (error) {
+        console.log(error);
+        response.status(404).json({
+            message: "Error while retrive data",
+            data: {}
         })
     }
 })

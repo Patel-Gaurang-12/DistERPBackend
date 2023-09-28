@@ -11,5 +11,6 @@ router.get("/get-price-history", sellController.getSellWisePriceHistory)
 router.put("/get-sellbill", sellController.getsellBillNumber);
 router.put("/get-datewiseaddmoney", sellController.datewiseAddMoneyList)
 router.put("/get-between", sellController.getRecordBetweenDate)
+router.get("/search", sellController.getClientWiseSellbills);
 
 module.exports = router
