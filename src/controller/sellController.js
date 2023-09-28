@@ -31,7 +31,7 @@ module.exports.addSell = async (request, response) => {
                 uom: item.uom,
             };
         });
-        console.log("history ", history);
+        // console.log("history ", history);
         data.total = data.items.reduce((accumulator, currentValue) => {
             return accumulator + (currentValue.price * currentValue.qty);
         }, 0)
@@ -44,7 +44,7 @@ module.exports.addSell = async (request, response) => {
             data: res,
         });
     } catch (error) {
-        console.log("error : ", error);
+        // console.log("error : ", error);
         response.status(500).json({
             message: "Error while adding sell.",
             data: error,
@@ -60,7 +60,7 @@ module.exports.getSell = async (request, response) => {
             .populate("items.itemId")
             .populate("items.companyId")
             .exec();
-        console.log("res for client", res);
+        // console.log("res for client", res);
         response.status(200).json({
             message: "Data retrived succesfully.",
             data: res,
@@ -77,22 +77,29 @@ module.exports.deleteSell = async (request, response) => {
     try {
         var sellbill;
         const res = await sellModel.find({ _id: request.params.id })
-        const setResponse = await stockController.addToStock(res[0].items);
-        if (setResponse === null || setResponse === {} || setResponse === [] || setResponse === undefined || setResponse.length === 0) {
-            sellbill = await sellModel.findByIdAndDelete(request.params.id);
+        if (res.length > 0) {
+            const setResponse = await stockController.addToStock(res[0].items);
+            if (setResponse === null || setResponse === undefined || setResponse.length === 0) {
+                sellbill = await sellModel.findByIdAndDelete(request.params.id);
+            }
+            response.status(200).json({
+                message: "Sell Bill Deleted successfully",
+                data: setResponse
+            })
+        } else {
+            response.status(404).json({
+                message: "Error in delete sellbill",
+                data: []
+            })
         }
-        response.status(200).json({
-            message: "Sell Bill Deleted successfully",
-            data: setResponse
-        })
     } catch (error) {
+        // console.log(error);
         response.status(500).json({
             message: "Error while deleting sellbill.",
             data: error
         })
     }
 }
-
 module.exports.datewisesellprice = async (request, response) => {
     try {
         var data = request.body;
@@ -101,13 +108,64 @@ module.exports.datewisesellprice = async (request, response) => {
         }).populate("items.itemId")
             .populate("items.companyId")
             .exec();
-        console.log("data....", datewiseprice);
         response.status(200).json({
             message: "sellbill price success",
             data: datewiseprice
         })
     } catch (error) {
-        console.log(error);
+        // console.log(error);
+        response.status(500).json({
+            message: "can't retrive sellbill price",
+        })
+    }
+}
+
+module.exports.datewisesellitem = async (request, response) => {
+    try {
+        var data = request.body;
+        const datewiseprice = await sellModel.find({
+            date: { $regex: data.date, $options: 'i' }
+        })
+            .populate('items.itemId')
+            .populate('items.companyId')
+            .exec();
+
+        // Create a map to consolidate items by itemId
+        const consolidatedItems = new Map();
+
+        // Iterate through the datewiseprice data and consolidate items
+        datewiseprice.forEach((sell) => {
+            sell.items.forEach((item) => {
+                const itemId = item.itemId._id.toString();
+                // console.log("before 'if' ", item);
+                if (consolidatedItems.has(itemId)) {
+                    // Item already exists, update quantity and total
+                    const existingItem = consolidatedItems.get(itemId);
+                    existingItem.qty += item.qty;
+                    existingItem.total += item.qty * item.price;
+                } else {
+                    // Item doesn't exist, add it to the map
+                    consolidatedItems.set(itemId, {
+                        itemId: item.itemId,
+                        companyId: item.companyId,
+                        price: item.price,
+                        qty: item.qty,
+                        total: item.qty * item.price,
+                    });
+                }
+            });
+        });
+
+        // Convert the map values (consolidated items) to an array
+        const consolidatedItemList = Array.from(consolidatedItems.values());
+
+        response.status(200).json({
+            message: 'sellbill price success',
+            data: consolidatedItemList
+        });
+
+    } catch (error) {
+        // console.log(error);
         response.status(500).json({
             message: "can't retrive sellbill price",
         })
@@ -140,7 +198,7 @@ module.exports.updateDebitMony = async (request, response) => {
             })
         }
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         response.status(500).json({
             message: "Error while editing sellbill.",
             data: error
@@ -178,7 +236,7 @@ module.exports.getsellBillNumber = (async (request, response) => {
     try {
         const res = await sellModel
             .find({ sellbillno: request.body.data });
-        console.log(res);
+        // console.log(res);
         if (res.length === 0) {
             response.status(200).json({
                 message: "Data retrived succesfully.",
@@ -201,7 +259,7 @@ module.exports.getsellBillNumber = (async (request, response) => {
 module.exports.datewiseAddMoneyList = async (request, response) => {
     try {
         var data = request.body;
-        console.log("data-----", data);
+        // console.log("data-----", data);
         const datewiseprice = await sellHistorySchema.find({
             date: { $eq: data.date },
         }).populate({
@@ -211,14 +269,14 @@ module.exports.datewiseAddMoneyList = async (request, response) => {
                 // model:"client"
             }
         }).exec()
-
+        // console.log("sdnsjdh", datewiseprice);
         // console.log("data....132324134243", dataForSomething);
         response.status(200).json({
             message: "sellbill price success",
             data: datewiseprice
         })
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         response.status(500).json({
             message: "can't retrive sellbill price",
         })
@@ -242,13 +300,13 @@ module.exports.getRecordBetweenDate = (async (request, response) => {
         const query = {
             paymentType: 0,
             date: {
-                $gte : date1.toISOString(),
-                $lte : date2.toISOString()
+                $gte: date1.toISOString(),
+                $lte: date2.toISOString()
             }
         };
-        
+
         const projection = {
-            date:1,
+            date: 1,
             items: {
                 qty: 1,
                 price: 1
@@ -259,7 +317,7 @@ module.exports.getRecordBetweenDate = (async (request, response) => {
         // console.log("sellHistorySchemaData",sells);
         response.status(200).json({
             message: "data retrived success",
-            data: {sells,data}
+            data: { sells, data }
         })
     } catch (err) {
         response.status(500).json({

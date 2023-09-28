@@ -5,6 +5,7 @@ router.post("/add-sell", sellController.addSell);
 router.get("/get-sell", sellController.getSell);
 router.delete("/deletesell/:id", sellController.deleteSell)
 router.put("/datewisesellprice", sellController.datewisesellprice)
+router.put("/datewisesellitem", sellController.datewisesellitem)
 router.delete("/deletesell/:id", sellController.deleteSell)
 router.put("/update-money", sellController.updateDebitMony)
 router.get("/get-price-history", sellController.getSellWisePriceHistory)

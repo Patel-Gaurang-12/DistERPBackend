@@ -14,7 +14,7 @@ module.exports.addToStock = ((data) => {
                         { "itemId": data[i].itemId }
                     ]
                 })
-                console.log(velidateResp);
+                // console.log(velidateResp);
                 if (velidateResp.length === 0 || velidateResp === null || velidateResp === {} || velidateResp === [] || velidateResp === undefined) {
                     var inserted = await stockModel.create(data[i])
                 } else {
@@ -24,7 +24,7 @@ module.exports.addToStock = ((data) => {
             }
             resolve();
         } catch (error) {
-            console.log("error occured in adding stock : ", error);
+            // console.log("error occured in adding stock : ", error);
             reject();
         }
     })
@@ -48,7 +48,7 @@ module.exports.removeStocks = (data) => {
             }
             resolve();
         } catch (error) {
-            console.log("error occured in adding stock : ", error);
+            // console.log("error occured in adding stock : ", error);
             reject();
         }
     })
@@ -89,7 +89,7 @@ module.exports.getStockHistory = (async (request, response) => {
             data: stockHistory,
         });
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         response.status(500).json({
             message: "Error while retriving stock history.",
             data: error,

@@ -39,6 +39,11 @@ app.use("/distributer/api/v1/public/sell", sellRouters)
 // Stock Routes
 app.use("/distributer/api/v1/public/stock", stockRouters)
 
+
+// app.get('/incorrect-url-path', (req, res) => {
+//     // Redirect to the main page using a 301 status code
+//     res.redirect(301, '/');
+// });
 app.listen(process.env.PORT, () => {
     console.log("server listern on port number : ", process.env.PORT)
 })

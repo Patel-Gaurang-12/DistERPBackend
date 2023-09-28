@@ -6,7 +6,7 @@ const stockHistory = require("../models/histroySchema")
 module.exports.addPurchase = async (request, response) => {
   try {
     var data = request.body;
-    console.log(data);
+    // console.log(data);
     const history = [];
     const stockData = await stockSchema.find({});
     data.items = data.items.map((item) => {
@@ -23,7 +23,7 @@ module.exports.addPurchase = async (request, response) => {
       history.push(data)
       return {
         companyId: item.companyId,
-        qty: parseFloat(item.qty),
+        qty: parseFloat(item.qty),  
         price: parseFloat(item.price),
         gstper: parseFloat(item.gstper),
         itemId: item.itemId,
@@ -31,7 +31,7 @@ module.exports.addPurchase = async (request, response) => {
       };
     });
 
-    console.log("Histry : ", history);
+    // console.log("Histry : ", history);
 
     const res = await purchaseModel.create(data);
     await stockController.addToStock(data.items);
@@ -41,7 +41,7 @@ module.exports.addPurchase = async (request, response) => {
       data: res,
     });
   } catch (error) {
-    console.log(error);
+    // // console.log(error);
     response.status(500).json({
       message: "Error while adding purchase.",
       data: error,
@@ -74,7 +74,7 @@ module.exports.getBillNumber = (async (request, response) => {
   try {
     const res = await purchaseModel
       .find({ invoice: request.body.data });
-    console.log(res);
+    // console.log(res);
     if (res.length === 0) {
       response.status(200).json({
         message: "Data retrived succesfully.",
