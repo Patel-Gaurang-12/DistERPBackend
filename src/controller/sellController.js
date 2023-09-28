@@ -260,7 +260,6 @@ module.exports.getRecordBetweenDate = (async (request, response) => {
 module.exports.getClientWiseSellbills = (async (request, response) => {
     try {
         var finalData;
-        console.log(request.query);
         const { type, person, sdate, edate } = request.query;
 
         var dateQuery = {};
@@ -272,8 +271,19 @@ module.exports.getClientWiseSellbills = (async (request, response) => {
                     $lte: new Date(edate).toISOString(),   // End date
                 },
             };
+        } else if (sdate) {
+            dateQuery = {
+                date: {
+                    $gte: new Date(sdate).toISOString(), // Start date
+                },
+            };
+        } else if (edate) {
+            dateQuery = {
+                date: {
+                    $lte: new Date(edate).toISOString(), // Start date
+                },
+            };
         }
-        // console.log("-------------------> ", dateQuery);
         switch (type) {
             case "sell":
                 if (person) {
@@ -307,7 +317,6 @@ module.exports.getClientWiseSellbills = (async (request, response) => {
                 }
                 break;
         }
-        // console.log("===> ", finalData);
         response.status(200).json({
             message: "data retrived success",
             data: finalData
