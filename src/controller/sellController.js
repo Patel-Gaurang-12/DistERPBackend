@@ -5,6 +5,7 @@ const histroySchema = require("../models/histroySchema");
 const sellAmountHistorySchma = require("../models/sellHistorySchema");
 const sellHistorySchema = require("../models/sellHistorySchema");
 const sellSchema = require("../models/sellSchema");
+const purchaseModel = require("../models/purchaseSchema")
 
 module.exports.addSell = async (request, response) => {
     try {
@@ -44,7 +45,6 @@ module.exports.addSell = async (request, response) => {
             data: res,
         });
     } catch (error) {
-        // console.log("error : ", error);
         response.status(500).json({
             message: "Error while adding sell.",
             data: error,
@@ -60,7 +60,6 @@ module.exports.getSell = async (request, response) => {
             .populate("items.itemId")
             .populate("items.companyId")
             .exec();
-        // console.log("res for client", res);
         response.status(200).json({
             message: "Data retrived succesfully.",
             data: res,
@@ -91,6 +90,9 @@ module.exports.deleteSell = async (request, response) => {
                 message: "Error in delete sellbill",
                 data: []
             })
+        // const setResponse = await stockController.addToStock(res[0].items);
+        // if (setResponse === null || setResponse === undefined || setResponse.length === 0) {
+        //     sellbill = await sellModel.findByIdAndDelete(request.params.id);
         }
     } catch (error) {
         // console.log(error);
@@ -100,6 +102,7 @@ module.exports.deleteSell = async (request, response) => {
         })
     }
 }
+
 module.exports.datewisesellprice = async (request, response) => {
     try {
         var data = request.body;
@@ -210,8 +213,6 @@ module.exports.getSellWisePriceHistory = (async (request, response) => {
     try {
         const res = await sellAmountHistorySchma
             .find()
-        // .populate("sellId")
-        // .exec();
         if (res.length !== 0) {
             response.status(200).json({
                 message: "Data retrived succesfully.",
@@ -236,7 +237,6 @@ module.exports.getsellBillNumber = (async (request, response) => {
     try {
         const res = await sellModel
             .find({ sellbillno: request.body.data });
-        // console.log(res);
         if (res.length === 0) {
             response.status(200).json({
                 message: "Data retrived succesfully.",
@@ -259,18 +259,14 @@ module.exports.getsellBillNumber = (async (request, response) => {
 module.exports.datewiseAddMoneyList = async (request, response) => {
     try {
         var data = request.body;
-        // console.log("data-----", data);
         const datewiseprice = await sellHistorySchema.find({
             date: { $eq: data.date },
         }).populate({
             path: "sellId",
             populate: {
                 path: "clientId",
-                // model:"client"
             }
         }).exec()
-        // console.log("sdnsjdh", datewiseprice);
-        // console.log("data....132324134243", dataForSomething);
         response.status(200).json({
             message: "sellbill price success",
             data: datewiseprice
@@ -313,8 +309,6 @@ module.exports.getRecordBetweenDate = (async (request, response) => {
             }
         };
         const sells = await sellModel.find(query, projection);
-        // console.log("sellHistorySchemaData", data);
-        // console.log("sellHistorySchemaData",sells);
         response.status(200).json({
             message: "data retrived success",
             data: { sells, data }
@@ -323,6 +317,79 @@ module.exports.getRecordBetweenDate = (async (request, response) => {
         response.status(500).json({
             message: "error retriving data",
             data: err
+        })
+    }
+})
+
+module.exports.getClientWiseSellbills = (async (request, response) => {
+    try {
+        var finalData;
+        const { type, person, sdate, edate } = request.query;
+
+        var dateQuery = {};
+
+        if (sdate && edate) {
+            dateQuery = {
+                date: {
+                    $gte: new Date(sdate).toISOString(), // Start date
+                    $lte: new Date(edate).toISOString(),   // End date
+                },
+            };
+        } else if (sdate) {
+            dateQuery = {
+                date: {
+                    $gte: new Date(sdate).toISOString(), // Start date
+                },
+            };
+        } else if (edate) {
+            dateQuery = {
+                date: {
+                    $lte: new Date(edate).toISOString(), // Start date
+                },
+            };
+        }
+        switch (type) {
+            case "sell":
+                if (person) {
+                    finalData = await sellModel.find({
+                        $and: [
+                            { clientId: person },
+                            dateQuery
+                        ]
+                    }).populate("clientId")
+                        .populate("items.itemId")
+                        .populate("items.companyId")
+                        .exec();
+                } else {
+                    finalData = await sellModel.find(dateQuery)
+                        .populate("clientId")
+                        .populate("items.itemId")
+                        .populate("items.companyId")
+                        .exec();
+                }
+                break;
+            case "purchase":
+                if (person) {
+                    finalData = await purchaseModel.find({
+                        $and: [
+                            { vendorId: person },
+                            dateQuery
+                        ]
+                    }).populate("vendorId")
+                } else {
+                    finalData = await purchaseModel.find(dateQuery).populate("vendorId")
+                }
+                break;
+        }
+        response.status(200).json({
+            message: "data retrived success",
+            data: finalData
+        })
+    } catch (error) {
+        console.log(error);
+        response.status(404).json({
+            message: "Error while retrive data",
+            data: {}
         })
     }
 })

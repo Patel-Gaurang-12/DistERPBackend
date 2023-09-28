@@ -14,8 +14,7 @@ module.exports.addToStock = ((data) => {
                         { "itemId": data[i].itemId }
                     ]
                 })
-                // console.log(velidateResp);
-                if (velidateResp.length === 0 || velidateResp === null || velidateResp === {} || velidateResp === [] || velidateResp === undefined) {
+                if (velidateResp.length === 0 || velidateResp === null || velidateResp === undefined) {
                     var inserted = await stockModel.create(data[i])
                 } else {
                     var qty = velidateResp[0].qty + parseFloat(data[i].qty);
@@ -40,7 +39,7 @@ module.exports.removeStocks = (data) => {
                         { "itemId": data[i].itemId }
                     ]
                 })
-                if (velidateResp.length !== 0 || velidateResp !== null || velidateResp !== {} || velidateResp !== [] || velidateResp !== undefined) {
+                if (velidateResp.length !== 0 || velidateResp !== null || velidateResp !== undefined) {
                     var qty = velidateResp[0].qty - parseFloat(data[i].qty);
                     var price = velidateResp[0].price - parseFloat(data[i].price);
                     var updated = await stockModel.findByIdAndUpdate({ _id: velidateResp[0]._id }, { price: price, qty: qty })
@@ -84,9 +83,47 @@ module.exports.getStockHistory = (async (request, response) => {
             .populate("companyId")
             .populate("itemId").exec();
 
+        console.log(" ====>> ", stockHistory);
+        const uniqueData = {};
+
+        // Iterate through the original data
+        stockHistory.forEach((item) => {
+            // const { date, type, inQty, currentQty } = item;
+            const { date, type, inQty, currentQty, companyId, itemId } = item;
+            const key = `${date}-${type}`;
+
+            // If the combination exists in uniqueData, update the inQty and currentQty
+            if (uniqueData[key]) {
+                uniqueData[key].inQty += inQty;
+                // uniqueData[key].currentQty += currentQty;
+            } else {
+                // Otherwise, create a new entry with the combination
+                uniqueData[key] = {
+                    date,
+                    type,
+                    inQty,
+                    // currentQty,
+                    company: {
+                        _id: companyId._id,
+                        name: companyId.name,
+                    },
+                    item: {
+                        _id: itemId._id,
+                        name: itemId.name,
+                    },
+                };
+            }
+        });
+
+        // Convert the uniqueData object back to an array
+        const uniqueDataArray = Object.values(uniqueData);
+
+        console.log(uniqueDataArray);
+
+
         response.status(200).json({
             message: "Data retriving successfully.",
-            data: stockHistory,
+            data: uniqueDataArray,
         });
     } catch (error) {
         // console.log(error);
