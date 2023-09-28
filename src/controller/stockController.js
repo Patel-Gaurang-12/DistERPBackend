@@ -83,7 +83,7 @@ module.exports.getStockHistory = (async (request, response) => {
             .populate("companyId")
             .populate("itemId").exec();
 
-        console.log(" ====>> ", stockHistory);
+        // console.log(" ====>> ", stockHistory);
         const uniqueData = {};
 
         // Iterate through the original data
@@ -118,7 +118,7 @@ module.exports.getStockHistory = (async (request, response) => {
         // Convert the uniqueData object back to an array
         const uniqueDataArray = Object.values(uniqueData);
 
-        console.log(uniqueDataArray);
+        // console.log(uniqueDataArray);
 
 
         response.status(200).json({
